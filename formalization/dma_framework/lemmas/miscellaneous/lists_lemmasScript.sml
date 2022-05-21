@@ -1,0 +1,455 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+
+val _ = new_theory "lists_lemmas";
+
+Theorem EVERY_SUBLIST_LEMMA:
+!P l1 l2.
+  EVERY P l2 /\
+  LIST1_IN_LIST2 l1 l2
+  ==>
+  EVERY P l1
+Proof
+REWRITE_TAC [listTheory.EVERY_MEM, listsTheory.LIST1_IN_LIST2] THEN
+BETA_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ASM_INST_IMP_ASM_TAC THEN
+ASM_INST_IMP_ASM_TAC THEN
+ASM_REWRITE_TAC []
+QED
+
+Theorem MEM_HD_LEMMA:
+!h t l.
+  l = h::t
+  ==>
+  MEM h l
+Proof
+INTRO_TAC THEN
+ASM_REWRITE_TAC [listTheory.MEM]
+QED
+
+Theorem LIST1_IN_LIST2_MEM_LIST1_IMPLIES_MEM_LIST2_LEMMA:
+!e l1 l2.
+  LIST1_IN_LIST2 l1 l2 /\
+  MEM e l1
+  ==>
+  MEM e l2
+Proof
+INTRO_TAC THEN
+PTAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_MEM THEN
+AITAC THEN
+APP_SCALAR_TAC THEN
+STAC
+QED
+
+Theorem LIST1_IN_LIST2_PRESERVES_DISJOINTNESS_LEMMA:
+!l1 l2 l3.
+  LIST1_IN_LIST2 l1 l2 /\
+  DISJOINT_LISTS l3 l2
+  ==>
+  DISJOINT_LISTS l3 l1
+Proof
+REWRITE_TAC [listsTheory.DISJOINT_LISTS] THEN
+REWRITE_TAC [listsTheory.LIST1_IN_LIST2] THEN
+REWRITE_TAC [listTheory.EVERY_MEM] THEN
+BETA_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+AIRTAC THEN
+CCONTR_TAC THEN
+RW_HYP_LEMMA_TAC boolTheory.NOT_CLAUSES THEN
+AIRTAC THEN
+AIRTAC THEN
+CONTR_ASMS_TAC
+QED
+
+Theorem LIST1_IN_LIST2_REFL_LEMMA:
+!l. LIST1_IN_LIST2 l l
+Proof
+GEN_TAC THEN
+PTAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_MEM THEN
+APP_SCALAR_TAC THEN
+REWRITE_TAC [boolTheory.IMP_CLAUSES]
+QED
+
+Theorem EVERY_NOT_MEM_SYM_LEMMA:
+!bd_ras was.
+  EVERY (\a. ~MEM a was) bd_ras
+  =
+  EVERY (\a. ~MEM a bd_ras) was
+Proof
+REWRITE_TAC [listTheory.EVERY_MEM] THEN
+BETA_TAC THEN
+REPEAT GEN_TAC THEN
+EQ_TAC THEN
+ INTRO_TAC THEN
+ INTRO_TAC THEN
+ CCONTR_TAC THEN
+ ETAC boolTheory.NOT_CLAUSES THEN
+ AIRTAC THEN
+ CONTR_ASMS_TAC
+QED
+
+Theorem DISJOINT_LISTS_SYM_LEMMA:
+!l1 l2.
+  DISJOINT_LISTS l1 l2 = DISJOINT_LISTS l2 l1
+Proof
+REPEAT GEN_TAC THEN
+ETAC listsTheory.DISJOINT_LISTS THEN
+EQ_TAC THEN
+DISCH_TAC THEN
+ONCE_REWRITE_TAC [EVERY_NOT_MEM_SYM_LEMMA] THEN
+STAC
+QED
+
+Theorem LIST1_IN_LIST2_PRESERVES_DISJOINTNESS2_LEMMA:
+!l1 l2 l3.
+  LIST1_IN_LIST2 l1 l2 /\
+  DISJOINT_LISTS l2 l3
+  ==>
+  DISJOINT_LISTS l1 l3
+Proof
+INTRO_TAC THEN
+LEMMA_TAC DISJOINT_LISTS_SYM_LEMMA THEN
+LEMMA_ASM_TAC DISJOINT_LISTS_SYM_LEMMA THEN
+IRTAC LIST1_IN_LIST2_PRESERVES_DISJOINTNESS_LEMMA THEN
+STAC
+QED
+
+Theorem NOT_EMPTY_IMPLIES_NOT_NULL_LEMMA:
+!l.
+  l <> []
+  ==>
+  ~NULL l
+Proof
+INTRO_TAC THEN
+EXPAND_TERM_TAC "l" THENL
+[
+ CONTR_NEG_ASM_TAC boolTheory.EQ_REFL
+ ,
+ LEMMA_TAC listTheory.NULL
+]
+QED
+
+Theorem NO_HD_TL_IMPLIES_EMPTY_LEMMA:
+!l.
+  (~?h : 'a t. h::t = l)
+  ==>
+  l = []
+Proof
+INTRO_TAC THEN
+CCONTR_TAC THEN
+IRTAC NOT_EMPTY_IMPLIES_NOT_NULL_LEMMA THEN
+ETAC listTheory.NOT_NULL_MEM THEN
+AXTAC THEN
+EXPAND_TERM_TAC "l" THENL
+[
+ ETAC listTheory.MEM THEN STAC
+ ,
+ ASM_NOT_EXISTS_TO_FORALL_NOT_TAC THEN
+ PAT_X_ASSUM “!x : 'a. P” (fn thm => ASSUME_TAC (SPEC “h : 'a” thm)) THEN
+ ASM_NOT_EXISTS_TO_FORALL_NOT_TAC THEN
+ PAT_X_ASSUM “!x : 'a list. P” (fn thm => ASSUME_TAC (SPEC “t : 'a list” thm)) THEN
+ CONTR_NEG_ASM_TAC boolTheory.EQ_REFL
+]
+QED
+
+Theorem DISJOINT_LISTS_EMPTY_LEMMA:
+!l. DISJOINT_LISTS l []
+Proof
+GEN_TAC THEN
+ETAC listsTheory.DISJOINT_LISTS THEN
+REWRITE_TAC [listTheory.MEM] THEN
+ETAC listTheory.EVERY_MEM THEN
+APP_SCALAR_TAC THEN
+STAC
+QED
+
+Theorem NOT_NULL_IMPLIES_NEQ_EMPTY_LEMMA:
+!l.
+  ~NULL l ==> l <> []
+Proof
+INTRO_TAC THEN
+IRTAC listTheory.CONS THEN
+RLTAC THEN
+REWRITE_TAC [listTheory.NOT_CONS_NIL]
+QED
+
+Theorem NOT_NULL_IMPLIES_EXISTING_HD_TL_LEMMA:
+!l.
+  ~NULL l ==> ?x xs. l = x::xs
+Proof
+INTRO_TAC THEN
+IRTAC NOT_NULL_IMPLIES_NEQ_EMPTY_LEMMA THEN
+IRTAC ((REWRITE_RULE [boolTheory.NOT_CLAUSES] o CONTRAPOS o SPEC_ALL) NO_HD_TL_IMPLIES_EMPTY_LEMMA) THEN
+AXTAC THEN
+PAXTAC THEN
+STAC
+QED
+
+Theorem FILTER_ID_MEM_EQ_EVERY_MEM_LEMMA:
+!l1 l2. (l1 = FILTER (\e. MEM e l2) l1) = EVERY (\e. MEM e l2) l1
+Proof
+REPEAT GEN_TAC THEN
+REWRITE_TAC [SYM (SPECL [“(\e. MEM e l2)”, “l1 : 'a list”] listTheory.FILTER_EQ_ID)] THEN
+EQ_TAC THENL
+[
+ INTRO_TAC THEN
+ ONCE_REWRITE_TAC [boolTheory.EQ_SYM_EQ] THEN
+ CCONTR_TAC THEN
+ RLTAC THEN
+ CONTR_NEG_ASM_TAC boolTheory.EQ_REFL
+ ,
+ INTRO_TAC THEN
+ ONCE_REWRITE_TAC [boolTheory.EQ_SYM_EQ] THEN
+ STAC
+]
+QED
+
+Theorem TAIL_IN_LIST2_LEMMA:
+!l1 l2 e.
+  LIST1_IN_LIST2 (e::l1) l2
+  ==>
+  LIST1_IN_LIST2 l1 l2
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_DEF THEN
+STAC
+QED
+
+Theorem LIST_IN_LIST_FILTER_MEM_IMPLIES_EQ_LEMMA:
+!l l1 l3.
+  LIST1_IN_LIST2 l l3 /\
+  l1 = FILTER (\e. MEM e l3) l
+  ==>
+  l1 = l
+Proof
+Induct THENL
+[
+ INTRO_TAC THEN ETAC listTheory.FILTER THEN STAC
+ ,
+ INTRO_TAC THEN
+ ETAC listTheory.FILTER THEN
+ IF_SPLIT_TAC THENL
+ [
+  IRTAC TAIL_IN_LIST2_LEMMA THEN
+  AIRTAC THEN
+  STAC
+  ,
+  ETAC listsTheory.LIST1_IN_LIST2 THEN
+  ETAC listTheory.EVERY_DEF THEN
+  CONTR_ASMS_TAC
+ ]
+]
+QED
+
+Theorem MEM_ADDRESS_IMPLIES_MEM_ADDRESS_BYTES_LEMMA:
+!address dma_address_bytes.
+  MEM address (MAP FST dma_address_bytes)
+  ==>
+  ?byte.
+    MEM (address, byte) dma_address_bytes
+Proof
+INTRO_TAC THEN
+ETAC listTheory.MEM_MAP THEN
+AXTAC THEN
+Cases_on ‘y’ THEN
+LRTAC THEN
+ETAC pairTheory.FST THEN
+PAXTAC THEN
+STAC
+QED
+
+Theorem MEM_ADDRESS_BYTE_IMPLIES_MEM_ADDRESS_LEMMA:
+!address byte address_bytes.
+  MEM (address, byte) address_bytes
+  ==>
+  MEM address (MAP FST address_bytes)
+Proof
+INTRO_TAC THEN
+ETAC listTheory.MEM_MAP THEN
+PAXTAC THEN
+ETAC pairTheory.FST THEN
+STAC
+QED
+
+Theorem MEM_ADDRESS_BYTE_IN_LIST1_IN_LIST2_IMPLIES_MEM_ADDRESS_LEMMA:
+!address_bytes address byte addresses.
+  MEM (address, byte) address_bytes /\
+  LIST1_IN_LIST2 (MAP FST address_bytes) addresses
+  ==>
+  MEM address addresses
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_MEM THEN
+IRTAC MEM_ADDRESS_BYTE_IMPLIES_MEM_ADDRESS_LEMMA THEN
+AIRTAC THEN
+APP_SCALAR_TAC THEN
+STAC
+QED
+
+Theorem LIST1_IN_LIST2_EMPTY_LEMMA:
+!l. LIST1_IN_LIST2 [] l
+Proof
+GEN_TAC THEN
+ETAC listsTheory.LIST1_IN_LIST2 THEN
+REWRITE_TAC [listTheory.EVERY_DEF]
+QED
+
+Theorem MEM_PRECEDING_FOLLOWING_IMPLIES_MEM_MID_LEMMA:
+!e preceding following l.
+  preceding ++ [e] ++ following = l
+  ==>
+  MEM e l
+Proof
+INTRO_TAC THEN
+RLTAC THEN
+ETAC listTheory.MEM_APPEND THEN
+REWRITE_TAC [listTheory.MEM]
+QED
+
+Theorem LIST1_IN_LIST2_IMPLIES_APPEND_LEMMA:
+!l l1 l2.
+  LIST1_IN_LIST2 l l1
+  ==>
+  LIST1_IN_LIST2 l (l1 ++ l2)
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_MEM THEN
+APP_SCALAR_TAC THEN
+INTRO_TAC THEN
+AIRTAC THEN
+ETAC listTheory.MEM_APPEND THEN
+STAC
+QED
+
+Theorem LIST1_IN_LIST2_IMPLIES_PREPEND_LEMMA:
+!l l1 l2.
+  LIST1_IN_LIST2 l l2
+  ==>
+  LIST1_IN_LIST2 l (l1 ++ l2)
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.LIST1_IN_LIST2 THEN
+ETAC listTheory.EVERY_MEM THEN
+APP_SCALAR_TAC THEN
+INTRO_TAC THEN
+AIRTAC THEN
+ETAC listTheory.MEM_APPEND THEN
+STAC
+QED
+
+Theorem LAST_IS_MEM_LEMMA:
+!(e : 'a) h t.
+  e = LAST (h::t)
+  ==>
+  MEM e (h::t)
+Proof
+INTRO_TAC THEN
+ASSUME_TAC (SPECL [“h : 'a”, “t : 'a list”] rich_listTheory.MEM_LAST) THEN
+STAC
+QED
+
+Theorem NOT_DISJOINT_LISTS_IMPLIES_EXISTS_MUTUAL_MEM_LEMMA:
+!l1 l2.
+  ~DISJOINT_LISTS l1 l2
+  ==>
+  ?e.
+    MEM e l1 /\
+    MEM e l2
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.DISJOINT_LISTS THEN
+ETAC listTheory.NOT_EVERY THEN
+ETAC listTheory.EXISTS_MEM THEN
+AXTAC THEN
+PAXTAC THEN
+ETAC combinTheory.o_THM THEN
+APP_SCALAR_TAC THEN
+ETAC boolTheory.NOT_CLAUSES THEN
+STAC
+QED
+
+Theorem MEM_DISJOINT_LISTS_IMPLIES_F_LEMMA:
+!e l1 l2.
+  MEM e l1 /\
+  MEM e l2 /\
+  DISJOINT_LISTS l1 l2
+  ==>
+  F
+Proof
+INTRO_TAC THEN
+ETAC listsTheory.DISJOINT_LISTS THEN
+ETAC listTheory.EVERY_MEM THEN
+AIRTAC THEN
+APP_SCALAR_TAC THEN
+CONTR_ASMS_TAC
+QED
+
+Theorem MEM_APPEND_CONS_LEMMA:
+!e1 e2 l1 l2 l l3.
+  e2::l1 ++ l ++ l2 = l3 /\
+  MEM e1 (l1 ++ l2)
+  ==>
+  MEM e1 ((e2::l1) ++ l2)
+Proof
+INTRO_TAC THEN
+ETAC listTheory.MEM_APPEND THEN
+ETAC listTheory.MEM THEN
+SPLIT_ASM_DISJS_TAC THEN
+STAC
+QED
+
+Theorem ADD_HD_LEMMA:
+!bds_to_fetch preceding_bds bd following_bds.
+  ~NULL bds_to_fetch /\
+  preceding_bds ++ [bd] ++ following_bds = TL bds_to_fetch
+  ==>
+  ((HD bds_to_fetch)::preceding_bds) ++ [bd] ++ following_bds = bds_to_fetch
+Proof
+INTRO_TAC THEN
+IRTAC listTheory.CONS THEN
+RLTAC THEN
+ETAC listTheory.TL THEN
+ETAC listTheory.HD THEN
+RLTAC THEN
+REWRITE_TAC [listTheory.APPEND]
+QED
+
+Theorem LIST_STRUCTURE_PRESERVATION_LEMMA:
+!bd1 bd2 preceding_bds following_bds bds_to_fetch.
+  MEM bd2 (preceding_bds ++ following_bds) /\
+  ~NULL bds_to_fetch /\
+  preceding_bds ++ [bd1] ++ following_bds = TL bds_to_fetch
+  ==>
+  ?preceding_bds following_bds.
+    MEM bd2 (preceding_bds ++ following_bds) /\
+    preceding_bds ++ [bd1] ++ following_bds = bds_to_fetch
+Proof
+INTRO_TAC THEN
+IRTAC ADD_HD_LEMMA THEN
+ITAC MEM_APPEND_CONS_LEMMA THEN
+PAXTAC THEN
+STAC
+QED
+
+Theorem MEM_APPEND_LEMMA:
+!e l l1 l2.
+  MEM e l /\
+  l = l1 ++ l2
+  ==>
+  MEM e l1 \/ MEM e l2
+Proof
+INTRO_TAC THEN
+LRTAC THEN
+ETAC listTheory.MEM_APPEND THEN
+STAC
+QED
+
+val _ = export_theory();
+

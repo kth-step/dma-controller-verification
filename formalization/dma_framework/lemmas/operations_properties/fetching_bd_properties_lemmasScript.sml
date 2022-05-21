@@ -1,0 +1,78 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open abstractTheory operationsTheory;
+open access_propertiesTheory;
+
+val _ = new_theory "fetching_bd_properties_lemmas";
+
+Theorem FETCHING_BD_UPDATE_QS_ABSTRACT_IMPLIES_PENDING_ACCESSES_UNMODIFIED_FETCHING_BD_LEMMA:
+!channel1 channel2 bds_to_fetch.
+  channel2 = fetching_bd_update_qs_abstract channel1 bds_to_fetch
+  ==>
+  PENDING_ACCESSES_UNMODIFIED_FETCHING_BD channel1 channel2
+Proof
+INTRO_TAC THEN
+ITAC abstract_lemmasTheory.FETCHING_BD_UPDATE_QS_ABSTRACT_PRESERVES_PENDING_ACCESSES_LEMMA THEN
+ITAC access_properties_lemmasTheory.EQ_PENDING_ACCESSES_IMPLIES_PENDING_ACCESSES_UNMODIFIED_FETCHING_BD_LEMMA THEN
+STAC
+QED
+
+Theorem FETCHING_BD_FETCH_BD_ABSTRACT_IMPLIES_PENDING_ACCESSES_UNMODIFIED_FETCHING_BD_LEMMA:
+!internal_state1 internal_state2 channel1 channel2 operation_fetch_bd byte_tags.
+  (internal_state2, channel2) = fetching_bd_fetch_bd_abstract operation_fetch_bd internal_state1 channel1 byte_tags
+  ==>
+  PENDING_ACCESSES_UNMODIFIED_FETCHING_BD channel1 channel2
+Proof
+INTRO_TAC THEN
+PTAC fetching_bd_fetch_bd_abstract THENL
+[
+ EQ_PAIR_ASM_TAC THEN
+ ITAC FETCHING_BD_UPDATE_QS_ABSTRACT_IMPLIES_PENDING_ACCESSES_UNMODIFIED_FETCHING_BD_LEMMA THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ETAC PENDING_ACCESSES_UNMODIFIED_FETCHING_BD THEN
+ STAC
+]
+QED
+
+Theorem FETCHING_BD_SET_REQUEST_R_IMPLIES_PENDING_ACCESSES_UNMODIFIED_UNEXPANDED_CONDITIONALLY_EXPANDED_FETCHING_BD_LEMMA:
+!R memory channel1 channel2 addresses tag.
+  channel2 = fetching_bd_set_request channel1 addresses tag /\
+  EVERY (R memory) addresses
+  ==>
+  PENDING_ACCESSES_UNMODIFIED_FETCHING_BD channel1 channel2 \/
+  PENDING_ACCESSES_UNEXPANDED_FETCHING_BD channel1 channel2 \/
+  !W. PENDING_ACCESSES_CONDITIONALLY_EXPANDED_FETCHING_BD R W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+PTAC fetching_bd_set_request THEN
+MATCH_MP_TAC boolTheory.OR_INTRO_THM2 THEN
+MATCH_MP_TAC boolTheory.OR_INTRO_THM2 THEN
+GEN_TAC THEN
+LEMMA_TAC PENDING_ACCESSES_CONDITIONALLY_EXPANDED_FETCHING_BD THEN
+INTRO_TAC THEN
+LRTAC THEN
+RECORD_TAC THEN
+RW_HYP_LEMMA_TAC optionTheory.option_CLAUSES THEN
+RLTAC THEN
+REWRITE_TAC [REQUEST_CONDITION_R_W, REQUEST_CONDITION_R, REQUEST_CONDITION_W] THEN
+STAC
+QED
+
+Theorem FETCHING_BD_CLEAR_REPLY_IMP_PENDING_ACCESSES_UNEXPANDED_FETCHING_BD_LEMMA:
+!channel1 channel2.
+  channel2 = fetching_bd_clear_reply channel1
+  ==>
+  PENDING_ACCESSES_UNEXPANDED_FETCHING_BD channel1 channel2
+Proof
+INTRO_TAC THEN
+PTAC fetching_bd_clear_reply THEN
+LRTAC THEN
+ETAC PENDING_ACCESSES_UNEXPANDED_FETCHING_BD THEN
+GEN_TAC THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM optionTheory.NOT_SOME_NONE]
+QED
+
+val _ = export_theory();
+

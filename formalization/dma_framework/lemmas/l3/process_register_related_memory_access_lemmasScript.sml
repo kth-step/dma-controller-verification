@@ -1,0 +1,292 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open stateTheory;
+
+val _ = new_theory "process_register_related_memory_access_lemmas";
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_ABSTRACT_BDS_TO_FETCH_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  ABSTRACT_BDS_TO_FETCH_EQ device_characteristics device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.ABSTRACT_BDS_TO_FETCH_EQ THEN
+INTRO_TAC THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+ETAC stateTheory.schannel THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_CONCRETE_BDS_TO_FETCH_LEMMA:
+!device_characteristics memory device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  CONCRETE_BDS_TO_FETCH_EQ device_characteristics memory device1 device2
+Proof
+INTRO_TAC THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH THEN
+AIRTAC THEN
+ETAC stateTheory.CONCRETE_BDS_TO_FETCH_EQ THEN
+INTRO_TAC THEN
+AIRTAC THEN
+ALL_LRTAC THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_UPDATE_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  BDS_TO_UPDATE_EQ device_characteristics device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.BDS_TO_UPDATE_EQ THEN
+INTRO_TAC THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+ETAC stateTheory.schannel THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_PROCESS_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  BDS_TO_PROCESS_EQ device_characteristics device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.BDS_TO_PROCESS_EQ THEN
+INTRO_TAC THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+ETAC stateTheory.schannel THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_WRITE_BACK_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  BDS_TO_WRITE_BACK_EQ device_characteristics device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.BDS_TO_WRITE_BACK_EQ THEN
+INTRO_TAC THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+ETAC stateTheory.schannel THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_FUNCTION_STATES_EQ_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  FUNCTION_STATES_EQ device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.FUNCTION_STATES_EQ THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEFINED_CHANNELS_EQ_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  DEFINED_CHANNELS_EQ device_characteristics device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.DEFINED_CHANNELS_EQ THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+LRTAC THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_ABSTRACT_CONCRETE_BDS_TO_FETCH_EQ_LEMMA:
+!device_characteristics memory device21 device31 device22 device32.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  ABSTRACT_CONCRETE_BDS_TO_FETCH_EQ device_characteristics memory device21 device31
+  ==>
+  ABSTRACT_CONCRETE_BDS_TO_FETCH_EQ device_characteristics memory device22 device32
+Proof
+INTRO_TAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_ABSTRACT_BDS_TO_FETCH_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_CONCRETE_BDS_TO_FETCH_LEMMA THEN
+IRTAC L23EQ_lemmasTheory.ABSTRACT_CONCRETE_BDS_TO_FETCH_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_UPDATE_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  BDS_TO_UPDATE_EQ device_characteristics device21 device31
+  ==>
+  BDS_TO_UPDATE_EQ device_characteristics device22 device32
+Proof
+INTRO_TAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_UPDATE_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_UPDATE_LEMMA THEN
+FIRTAC L23EQ_lemmasTheory.BDS_TO_UPDATE_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_PROCESS_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  BDS_TO_PROCESS_EQ device_characteristics device21 device31
+  ==>
+  BDS_TO_PROCESS_EQ device_characteristics device22 device32
+Proof
+INTRO_TAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_PROCESS_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_PROCESS_LEMMA THEN
+FIRTAC L23EQ_lemmasTheory.BDS_TO_PROCESS_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_WRITE_BACK_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  BDS_TO_WRITE_BACK_EQ device_characteristics device21 device31
+  ==>
+  BDS_TO_WRITE_BACK_EQ device_characteristics device22 device32
+Proof
+INTRO_TAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_WRITE_BACK_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_WRITE_BACK_LEMMA THEN
+FIRTAC L23EQ_lemmasTheory.BDS_TO_WRITE_BACK_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_MEMORY_REQUESTS_REPLIES_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  INTERNAL_STATES_EQ device21 device31 /\
+  MEMORY_REQUESTS_REPLIES_EQ device_characteristics device21 device31
+  ==>
+  MEMORY_REQUESTS_REPLIES_EQ device_characteristics device22 device32
+Proof
+INTRO_TAC THEN
+REWRITE_TAC [stateTheory.MEMORY_REQUESTS_REPLIES_EQ] THEN
+REPEAT (PTAC operationsTheory.process_register_related_memory_access) THEN
+REPEAT CONJ_TAC THENL
+[
+ ALL_LRTAC THEN
+ ETAC stateTheory.MEMORY_REQUESTS_REPLIES_EQ THEN
+ RECORD_TAC THEN
+ STAC
+ ,
+ ALL_LRTAC THEN
+ ETAC stateTheory.INTERNAL_STATES_EQ THEN
+ RLTAC THEN
+ ETAC stateTheory.MEMORY_REQUESTS_REPLIES_EQ THEN
+ RLTAC THEN
+ RLTAC THEN
+ LRTAC THEN
+ EQ_PAIR_ASM_TAC THEN
+ ALL_LRTAC THEN
+ RECORD_TAC THEN
+ STAC
+ ,
+ ETAC MEMORY_REQUESTS_REPLIES_EQ THEN
+ INTRO_TAC THEN
+ AIRTAC THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ ALL_LRTAC THEN
+ RECORD_TAC THEN
+ STAC
+]
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_FUNCTION_STATES_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  FUNCTION_STATES_EQ device21 device31
+  ==>
+  FUNCTION_STATES_EQ device22 device32
+Proof
+INTRO_TAC THEN
+FIRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_FUNCTION_STATES_EQ_LEMMA THEN
+FIRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_FUNCTION_STATES_EQ_LEMMA THEN
+FIRTAC L23EQ_lemmasTheory.FUNCTION_STATES_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_INTERNAL_STATES_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  MEMORY_REQUESTS_REPLIES_EQ device_characteristics device21 device31 /\
+  INTERNAL_STATES_EQ device21 device31
+  ==>
+  INTERNAL_STATES_EQ device22 device32
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.MEMORY_REQUESTS_REPLIES_EQ THEN
+ETAC stateTheory.INTERNAL_STATES_EQ THEN
+REPEAT (PTAC operationsTheory.process_register_related_memory_access) THEN
+ALL_LRTAC THEN
+RECORD_TAC THEN
+EQ_PAIR_ASM_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_DEFINED_CHANNELS_EQ_LEMMA:
+!device_characteristics device21 device31 device22 device32.
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  DEFINED_CHANNELS_EQ device_characteristics device21 device31
+  ==>
+  DEFINED_CHANNELS_EQ device_characteristics device22 device32
+Proof
+INTRO_TAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEFINED_CHANNELS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEFINED_CHANNELS_EQ_LEMMA THEN
+FIRTAC L23EQ_lemmasTheory.DEFINED_CHANNELS_EQ_PRESERVED_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_L23EQ_LEMMA:
+!device_characteristics memory device21 device31 device22 device32.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device22 = process_register_related_memory_access device_characteristics.dma_characteristics device21 /\
+  device32 = process_register_related_memory_access device_characteristics.dma_characteristics device31 /\
+  L23EQ device_characteristics memory device21 device31
+  ==>
+  L23EQ device_characteristics memory device22 device32
+Proof
+INTRO_TAC THEN
+ETAC L23EQTheory.L23EQ THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_ABSTRACT_CONCRETE_BDS_TO_FETCH_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_UPDATE_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_PROCESS_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_BDS_TO_WRITE_BACK_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_MEMORY_REQUESTS_REPLIES_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_FUNCTION_STATES_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_INTERNAL_STATES_EQ_LEMMA THEN
+FITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_BISIMS_DEFINED_CHANNELS_EQ_LEMMA THEN
+STAC
+QED
+
+val _ = export_theory();
+

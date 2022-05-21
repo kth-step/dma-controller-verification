@@ -1,0 +1,693 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open l4Theory invariant_l4Theory;
+
+val _ = new_theory "device_internal_operation_invariant_concrete_l4_lemmas";
+
+Theorem BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA:
+!device_characteristics memory device1 device2 queue_type_bds_to_op.
+  BDS_TO_FETCH_EQ device_characteristics memory device1.dma_state.internal_state device2.dma_state.internal_state /\
+  CHANNELS_EQ device1 device2 /\
+  BD_WRITE device_characteristics memory device1 queue_type_bds_to_op
+  ==>
+  BD_WRITE device_characteristics memory device2 queue_type_bds_to_op
+Proof
+INTRO_TAC THEN
+ETAC BD_WRITE THEN
+ETAC stateTheory.CHANNELS_EQ THEN
+INTRO_TAC THEN
+RW_HYPS_TAC stateTheory.schannel THEN
+RLTAC THEN
+AITAC THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVES_CONSISTENT_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_DMA_WRITE_LEMMA:
+!device_characteristics memory device1 device2 queue_type_bds_to_op.
+  BDS_TO_FETCH_EQ device_characteristics memory device1.dma_state.internal_state device2.dma_state.internal_state /\
+  BD_TRANSFER_RAS_WAS_EQ device_characteristics device1.dma_state.internal_state device2.dma_state.internal_state /\
+  CHANNELS_EQ device1 device2 /\
+  DMA_WRITE device_characteristics memory device1 queue_type_bds_to_op
+  ==>
+  DMA_WRITE device_characteristics memory device2 queue_type_bds_to_op
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.BD_TRANSFER_RAS_WAS_EQ THEN
+ETAC DMA_WRITE THEN
+ETAC stateTheory.CHANNELS_EQ THEN
+INTRO_TAC THEN
+AITAC THEN
+QRLTAC THEN
+RW_HYPS_TAC stateTheory.schannel THEN
+RLTAC THEN
+AITAC THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVE_CONSISTENT_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 THEN
+INTRO_TAC THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+RW_HYPS_TAC stateTheory.BDS_TO_FETCH_EQ THEN
+AITAC THEN
+QRLTAC THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem BDS_TO_FETCH_EQ_LEMMA:
+!device_characteristics memory internal_state1 internal_state2.
+  BDS_TO_FETCH_EQ device_characteristics memory internal_state1 internal_state2
+  ==>
+  !channel_id.
+    VALID_CHANNEL_ID device_characteristics channel_id
+    ==>
+    (cverification device_characteristics channel_id).bds_to_fetch memory internal_state2 =
+    (cverification device_characteristics channel_id).bds_to_fetch memory internal_state1
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.BDS_TO_FETCH_EQ THEN
+INTRO_TAC THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 THEN
+INTRO_TAC THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+ITAC BDS_TO_FETCH_EQ_LEMMA THEN
+AITAC THEN
+RLTAC THEN
+AIRTAC THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVES_DISJOINT_FROM_OTHER_BDS_TO_FETCH_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_UPDATE_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_UPDATE_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_UPDATE_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_UPDATE_BD_BD_WRITE_L4 THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_PROCESS_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_PROCESS_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_PROCESS_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_PROCESS_BD_BD_WRITE_L4 THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_WRITE_BACK_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_FETCH_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_DMA_WRITE_L4 THEN
+INTRO_TAC THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA THEN
+ETAC stateTheory.BD_TRANSFER_RAS_WAS_EQ THEN
+AITAC THEN
+QRLTAC THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+ITAC BDS_TO_FETCH_EQ_LEMMA THEN
+AITAC THEN
+QLRTAC THEN
+AIRTAC THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVE_CONSISTENT_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_UPDATE_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_UPDATE_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_UPDATE_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_UPDATE_BD_DMA_WRITE_L4 THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_PROCESS_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_PROCESS_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_PROCESS_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_PROCESS_BD_DMA_WRITE_L4 THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_BDS_TO_FETCH_DISJOINT_LEMMA:
+!device_characteristics memory device1 device2 channel_id operation environment.
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device1
+  ==>
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+PAT_X_ASSUM “!x. P” (fn thm => ASSUME_TAC (Q.SPEC ‘memory’ thm)) THEN
+ETAC invariant_l3Theory.INVARIANT_BDS_TO_FETCH_DISJOINT THEN
+INTRO_TAC THEN
+AITAC THEN
+ETAC stateTheory.BDS_TO_FETCH_EQ THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem SCHEDULER_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!device_characteristics memory environment device1 device2 channel_id operation.
+  PROOF_OBLIGATION_SCHEDULER device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES device_characteristics /\
+  (device2, channel_id, operation) = scheduler_operation device_characteristics device1 environment /\
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device1 /\
+  INVARIANT_EXTERNAL_FETCH_BD_REPLY device_characteristics memory device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device2 /\
+  INVARIANT_EXTERNAL_FETCH_BD_REPLY device_characteristics memory device2 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2 /\
+  VALID_CHANNEL_ID device_characteristics channel_id
+Proof
+INTRO_TAC THEN
+ITAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_BDS_TO_FETCH_DISJOINT_LEMMA THEN
+ITAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_PRESERVES_INVARIANT_EXTERNAL_FETCH_BD_REPLY_LEMMA THEN
+CONJS_TAC THEN (TRY (IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.SCHEDULER_OPERATION_IMPLIES_VALID_CHANNEL_ID_LEMMA THEN STAC)) THEN
+ETAC INVARIANT_CONCRETE_L4 THEN
+CONJS_TAC THENL
+[
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_UPDATE_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_PROCESS_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_WRITE_BACK_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_FETCH_BD_DMA_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_UPDATE_BD_DMA_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_PROCESS_BD_DMA_WRITE_L4_LEMMA THEN STAC
+]
+QED
+
+Theorem DMA_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!(device_characteristics : ('bd_type, 'channel_index_width, 'environment_type, 'function_state_type, 'interconnect_address_width, 'internal_state_type, 'tag_width) device_characteristics_type)
+ (device1 : ('bd_type, 'channel_index_width, 'function_state_type, 'interconnect_address_width, 'internal_state_type, 'tag_width) device_state_type)
+ (device2 : ('bd_type, 'channel_index_width, 'function_state_type, 'interconnect_address_width, 'internal_state_type, 'tag_width) device_state_type)
+ memory environment channel_id operation.
+  PROOF_OBLIGATION_NO_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  VALID_CHANNEL_ID device_characteristics channel_id /\
+  device2 = dma_operation device_characteristics channel_operation_l4 NONE environment (device1, channel_id, operation) /\
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device1 /\
+  INVARIANT_EXTERNAL_FETCH_BD_REPLY device_characteristics memory device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+PTAC operationsTheory.dma_operation THEN
+PTAC l4Theory.channel_operation_l4 THEN
+EQ_PAIR_ASM_TAC THEN
+NLRTAC 2 THEN
+PTAC l4Theory.channel_operation_case_l4 THENL
+[
+ IRTAC fetching_bd_l4_preserves_invariant_concrete_l4_lemmasTheory.FETCHING_BD_L4_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+ ,
+ IRTAC updating_bd_l4_preserves_invariant_concrete_l4_lemmasTheory.UPDATING_BD_L4_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+ ,
+ IRTAC transferring_data_l4_preserves_invariant_concrete_l4_lemmasTheory.TRANSFERRING_DATA_L4_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+ ,
+ FIRTAC writing_back_bd_l4_preserves_invariant_concrete_l4_lemmasTheory.WRITING_BACK_BD_L4_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+]
+QED
+
+Theorem INTERNAL_DMA_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!device_characteristics memory environment device1 device2.
+  PROOF_OBLIGATION_SCHEDULER device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES device_characteristics /\
+  PROOF_OBLIGATION_NO_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = internal_dma_operation device_characteristics channel_operation_l4 NONE environment device1 /\
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device1 /\
+  INVARIANT_EXTERNAL_FETCH_BD_REPLY device_characteristics memory device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC internal_operation_lemmasTheory.SCHEDULER_DMA_OPERATION_EQ_INTERNAL_DMA_OPERATION_LEMMA THEN
+PTAC operationsTheory.scheduler_dma_operation THEN
+RLTAC THEN
+IRTAC SCHEDULER_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN
+IRTAC DMA_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN
+STAC
+QED
+
+(*******************************************************************************)
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA:
+!device_characteristics device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  !memory.
+    BDS_TO_FETCH_EQ device_characteristics memory device1.dma_state.internal_state device2.dma_state.internal_state
+Proof
+INTRO_TAC THEN
+IRTAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_FETCH_LEMMA THEN
+GEN_TAC THEN
+ETAC stateTheory.BDS_TO_FETCH_EQ THEN
+INTRO_TAC THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4_LEMMA:
+!device_characteristics memory device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 THEN
+IRTAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_FETCH_LEMMA THEN
+INTRO_TAC THEN
+AITAC THEN
+QLRTAC THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 THEN
+INTRO_TAC THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_FETCH_LEMMA THEN
+AITAC THEN
+QLRTAC THEN
+AIRTAC THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVES_DISJOINT_FROM_OTHER_BDS_TO_FETCH_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA:
+!device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  CHANNELS_EQ device1 device2
+Proof
+INTRO_TAC THEN
+ETAC stateTheory.CHANNELS_EQ THEN
+IRTAC invariant_l3_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_CHANNELS_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_UPDATE_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics memory device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_UPDATE_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_UPDATE_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_UPDATE_BD_BD_WRITE_L4 THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_PROCESS_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_PROCESS_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_PROCESS_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_PROCESS_BD_BD_WRITE_L4 THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_WRITE_BACK_BD_BD_WRITE_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_BD_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_FETCH_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_FETCH_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_FETCH_BD_DMA_WRITE_L4 THEN
+INTRO_TAC THEN
+ITAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BDS_TO_FETCH_LEMMA THEN
+AITAC THEN
+QLRTAC THEN
+ITAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_BD_TRANSFER_RAS_WAS_LEMMA THEN
+AITAC THEN
+QLRTAC THEN
+AIRTAC THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC bd_queues_lemmasTheory.BDS_TO_FETCH_EQ_PRESERVE_CONSISTENT_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA:
+!device_characteristics device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1
+  ==>
+  BD_TRANSFER_RAS_WAS_EQ device_characteristics device1.dma_state.internal_state device2.dma_state.internal_state
+Proof
+INTRO_TAC THEN
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION THEN
+PTAC operationsTheory.process_register_related_memory_access THEN
+ETAC stateTheory.BD_TRANSFER_RAS_WAS_EQ THEN
+INTRO_TAC THEN
+AIRTAC THEN
+AIRTAC THEN
+LRTAC THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_UPDATE_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_UPDATE_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_UPDATE_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_UPDATE_BD_DMA_WRITE_L4 THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_PROCESS_BD_DMA_WRITE_L4_LEMMA:
+!device_characteristics device1 device2 memory.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_PROCESS_BD_DMA_WRITE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_PROCESS_BD_DMA_WRITE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_PROCESS_BD_DMA_WRITE_L4 THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_CHANNELS_EQ_LEMMA THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BD_TRANSFER_RAS_WAS_EQ_LEMMA THEN
+IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+IRTAC BDS_TO_FETCH_EQ_CHANNELS_EQ_PRESERVES_DMA_WRITE_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!device_characteristics memory device1 device2.
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC INVARIANT_CONCRETE_L4 THEN
+CONJS_TAC THENL
+[
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_UPDATE_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_PROCESS_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_WRITE_BACK_BD_BD_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_FETCH_BD_DMA_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_UPDATE_BD_DMA_WRITE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_PROCESS_BD_DMA_WRITE_L4_LEMMA THEN STAC
+]
+QED
+
+(*******************************************************************************)
+
+Theorem INTERNAL_FUNCTION_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!device_characteristics memory environment device1 device2.
+  device2 = internal_function_operation (THE device_characteristics.function_characteristics) environment device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+IRTAC device_internal_operation_invariant_concrete_l3_lemmasTheory.INTERNAL_FUNCTION_OPERATION_PRESERVES_DMA_STATE_LEMMA THEN
+ETAC INVARIANT_CONCRETE_L4 THEN
+CONJS_TAC THENL
+[
+ ETAC INVARIANT_FETCH_BD_BD_WRITE_SAME_CHANNEL_L4 THEN STAC 
+ ,
+ ETAC INVARIANT_FETCH_BD_BD_WRITE_OTHER_CHANNEL_L4 THEN STAC 
+ ,
+ ETAC INVARIANT_UPDATE_BD_BD_WRITE_L4 THEN
+ ETAC BD_WRITE THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ STAC
+ ,
+ ETAC INVARIANT_PROCESS_BD_BD_WRITE_L4 THEN
+ ETAC BD_WRITE THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ STAC
+ ,
+ ETAC INVARIANT_WRITE_BACK_BD_BD_WRITE_L4 THEN
+ ETAC BD_WRITE THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ STAC
+ ,
+ ETAC INVARIANT_FETCH_BD_DMA_WRITE_L4 THEN STAC 
+ ,
+ ETAC INVARIANT_UPDATE_BD_DMA_WRITE_L4 THEN
+ ETAC DMA_WRITE THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ STAC
+ ,
+ ETAC INVARIANT_PROCESS_BD_DMA_WRITE_L4 THEN
+ ETAC DMA_WRITE THEN
+ RW_HYPS_TAC stateTheory.schannel THEN
+ REWRITE_TAC [stateTheory.schannel] THEN
+ STAC
+]
+QED
+
+(*******************************************************************************)
+
+Theorem INTERNAL_DEVICE_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA:
+!device_characteristics memory environment device1 device2.
+  PROOF_OBLIGATION_SCHEDULER device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_NO_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT device_characteristics /\
+  PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL device_characteristics /\
+  PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL device_characteristics /\
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST device_characteristics /\
+  PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS device_characteristics /\
+  PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION device_characteristics /\
+  device2 = internal_device_operation_l4 device_characteristics environment device1 /\
+  INVARIANT_BDS_TO_FETCH_DISJOINT device_characteristics memory device1  /\
+  INVARIANT_EXTERNAL_FETCH_BD_REPLY device_characteristics memory device1 /\
+  INVARIANT_CONCRETE_L4 device_characteristics memory device1
+  ==>
+  INVARIANT_CONCRETE_L4 device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+PTAC internal_device_operation_l4 THEN
+PTAC operationsTheory.internal_device_operation THENL
+[
+ STAC
+ ,
+ IRTAC INTERNAL_DMA_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+ ,
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+ ,
+ IRTAC INTERNAL_FUNCTION_OPERATION_PRESERVES_INVARIANT_CONCRETE_L4_LEMMA THEN STAC
+]
+QED
+
+val _ = export_theory();
+

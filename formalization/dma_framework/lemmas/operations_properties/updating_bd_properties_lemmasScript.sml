@@ -1,0 +1,165 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open operationsTheory;
+open write_propertiesTheory;
+
+val _ = new_theory "updating_bd_properties_lemmas";
+
+Theorem UPDATING_BD_UPDATE_QS_PRESERVES_UPDATING_BD_WRITE_REQUESTS_ONLY_LEMMA:
+!channel1 channel2 update_status bd_ras_was bd_ras_wass.
+  channel2 = updating_bd_update_qs update_status channel1 bd_ras_was bd_ras_wass /\
+  UPDATING_BD_WRITE_REQUESTS_ONLY channel1
+  ==>
+  UPDATING_BD_WRITE_REQUESTS_ONLY channel2
+Proof
+INTRO_TAC THEN
+PTAC updating_bd_update_qs THENL
+[
+ STAC
+ ,
+ ITAC updating_bd_suboperations_lemmasTheory.UPDATE_QS_PRESERVES_PENDING_ACCESSES_LEMMA THEN
+ ETAC UPDATING_BD_WRITE_REQUESTS_ONLY THEN
+ STAC
+]
+QED
+
+Theorem UPDATING_BD_APPEND_REQUEST_PRESERVES_UPATING_BD_WRITE_REQUESTS_ONLY_LEMMA:
+!channel1 channel2 address_bytes tag.
+  channel2 = updating_bd_append_request channel1 address_bytes tag /\
+  UPDATING_BD_WRITE_REQUESTS_ONLY channel1
+  ==>
+  UPDATING_BD_WRITE_REQUESTS_ONLY channel2
+Proof
+INTRO_TAC THEN
+PTAC updating_bd_append_request THENL
+[
+ STAC
+ ,
+ ETAC UPDATING_BD_WRITE_REQUESTS_ONLY THEN
+ INTRO_TAC THEN
+ LRTAC THEN
+ RECORD_TAC THEN
+ ETAC listTheory.MEM_APPEND THEN
+ SPLIT_ASM_DISJS_TAC THENL
+ [
+  AIRTAC THEN STAC
+  ,
+  ETAC listTheory.MEM THEN
+  REMOVE_F_DISJUNCTS_TAC THEN
+  INST_EXISTS_WITH_ASM_TAC THEN
+  STAC
+ ]
+]
+QED
+
+Theorem UPDATING_BD_UPDATE_QS_PRESERVES_OTHERS_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA:
+!W memory channel1 channel2 update_status bd_ras_was bd_ras_wass.
+  channel2 = updating_bd_update_qs update_status channel1 bd_ras_was bd_ras_wass /\
+  FETCHING_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1 /\
+  TRANSFERRING_DATA_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1 /\
+  WRITING_BACK_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1
+  ==>
+  FETCHING_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2 /\
+  TRANSFERRING_DATA_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2 /\
+  WRITING_BACK_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2
+Proof
+INTRO_TAC THEN
+ITAC updating_bd_suboperations_lemmasTheory.UPDATING_BD_UPDATE_QS_PRESERVES_OTHERS_REQUESTS_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_FETCHING_BD_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_TRANSFERRING_DATA_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_WRITING_BACK_BD_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+Theorem UPDATING_BD_APPEND_REQUEST_PRESERVES_OTHERS_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA:
+!channel1 channel2 write_address_bytes tag W memory.
+  channel2 = updating_bd_append_request channel1 write_address_bytes tag /\
+  FETCHING_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1 /\
+  TRANSFERRING_DATA_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1 /\
+  WRITING_BACK_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel1
+  ==>
+  FETCHING_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2 /\
+  TRANSFERRING_DATA_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2 /\
+  WRITING_BACK_BD_CHANNEL_REQUESTING_WRITE_ADDRESSES W memory channel2
+Proof
+INTRO_TAC THEN
+ITAC updating_bd_suboperations_lemmasTheory.UPDATING_BD_APPEND_REQUEST_PRESERVES_OTHERS_REQUESTS_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_FETCHING_BD_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_TRANSFERRING_DATA_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+ITAC write_properties_lemmasTheory.EQUAL_WRITING_BACK_BD_REQUESTS_PRESERVES_CHANNEL_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+Theorem UPDATING_BD_UPDATE_QS_IMPLIES_PENDING_ACCESSES_UNMODIFIED_UPDATING_BD_LEMMA:
+!channel1 channel2 update_status bd_ras_was bd_ras_wass.
+  channel2 = updating_bd_update_qs update_status channel1 bd_ras_was bd_ras_wass
+  ==>
+  PENDING_ACCESSES_UNMODIFIED_UPDATING_BD channel1 channel2
+Proof
+INTRO_TAC THEN
+ETAC access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_UPDATING_BD THEN
+PTAC updating_bd_update_qs THENL
+[
+ STAC
+ ,
+ ITAC updating_bd_suboperations_lemmasTheory.UPDATE_QS_PRESERVES_PENDING_ACCESSES_LEMMA THEN
+ STAC
+]
+QED
+
+Theorem UPDATING_BD_APPEND_REQUEST_W_IMPLIES_PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD_LEMMA:
+!W memory channel1 channel2 write_address_bytes tag write_addresses.
+  channel2 = updating_bd_append_request channel1 write_address_bytes tag /\
+  LIST1_IN_LIST2 (MAP FST write_address_bytes) write_addresses /\
+  EVERY (W memory) write_addresses
+  ==>
+  !R. PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD R W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+ETAC access_propertiesTheory.PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD THEN
+INTRO_TAC THEN
+ITAC updating_bd_suboperations_lemmasTheory.UPDATING_BD_APPEND_REQUEST_EXTENDS_UPDATING_BD_LEMMA THEN
+SPLIT_ASM_DISJS_TAC THENL
+[
+ STAC
+ ,
+ LRTAC THEN
+ ETAC listTheory.MEM_APPEND THEN
+ SPLIT_ASM_DISJS_TAC THENL
+ [
+  STAC
+  ,
+  ETAC listTheory.MEM THEN
+  REMOVE_F_DISJUNCTS_TAC THEN
+  LRTAC THEN
+  REWRITE_TAC [access_propertiesTheory.REQUEST_CONDITION_R_W] THEN
+  REWRITE_TAC [access_propertiesTheory.REQUEST_CONDITION_R, access_propertiesTheory.REQUEST_CONDITION_W] THEN
+  MATCH_MP_TAC OR_INTRO_THM2 THEN
+  ITAC lists_lemmasTheory.EVERY_SUBLIST_LEMMA THEN
+  STAC
+ ]
+]
+QED
+
+Theorem UPDATING_BD_UPDATE_QS_UPDATING_BD_APPEND_REQUEST_W_IMPLIES_PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD_LEMMA:
+!W memory channel1 channel channel2 update_status bd_ras_was bd_ras_wass write_address_bytes tag write_addresses.
+  channel = updating_bd_update_qs update_status channel1 bd_ras_was bd_ras_wass /\
+  channel2 = updating_bd_append_request channel write_address_bytes tag /\
+  LIST1_IN_LIST2 (MAP FST write_address_bytes) write_addresses /\
+  EVERY (W memory) write_addresses
+  ==>
+  !R. PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD R W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+ITAC UPDATING_BD_UPDATE_QS_IMPLIES_PENDING_ACCESSES_UNMODIFIED_UPDATING_BD_LEMMA THEN
+ITAC UPDATING_BD_APPEND_REQUEST_W_IMPLIES_PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD_LEMMA THEN
+ETAC access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_UPDATING_BD THEN
+RW_HYPS_TAC access_propertiesTheory.PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD THEN
+LRTAC THEN
+ETAC access_propertiesTheory.PENDING_ACCESSES_CONDITIONALLY_EXPANDED_UPDATING_BD THEN
+STAC
+QED
+
+val _ = export_theory();
+

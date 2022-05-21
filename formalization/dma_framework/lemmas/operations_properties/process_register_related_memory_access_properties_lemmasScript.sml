@@ -1,0 +1,115 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open operationsTheory access_propertiesTheory;
+
+val _ = new_theory "process_register_related_memory_access_properties_lemmas";
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_PENDING_ACCESSES_RESTRICTED_LEMMA:
+!dma_characteristics device1 device2.
+  device2 = process_register_related_memory_access dma_characteristics device1
+  ==>
+  !R W memory channel_id.
+    PENDING_ACCESSES_RESTRICTED R W memory (schannel device1 channel_id) (schannel device2 channel_id)
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_RESTRICTED] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_RESTRICTED_FETCHING_BD] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_RESTRICTED_UPDATING_BD] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_RESTRICTED_TRANSFERRING_DATA] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_FETCHING_BD] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_UPDATING_BD] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_TRANSFERRING_DATA] THEN
+REWRITE_TAC [access_propertiesTheory.PENDING_ACCESSES_UNMODIFIED_WRITING_BACK_BD] THEN
+REWRITE_TAC [stateTheory.schannel] THEN
+ITAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_ALL_DMA_CHANNEL_PENDING_ACCESSES_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_REGISTER_REQUESTING_READ_ADDRESSES_LEMMA:
+!device_characteristics device1 device2 memory.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  REGISTER_REQUESTING_READ_ADDRESSES device_characteristics memory device1
+  ==>
+  REGISTER_REQUESTING_READ_ADDRESSES device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ITAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_UNEXPANDED_PENDING_REGISTER_RELATED_MEMORY_REQUESTS_LEMMA THEN
+ITAC read_properties_lemmasTheory.PENDING_REGISTER_RELATED_MEMORY_REQUESTS_UNEXPANDED_PRESERVES_REGISTER_REQUESTING_READ_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_REGISTER_REQUESTING_WRITE_ADDRESSES_LEMMA:
+!device_characteristics device1 device2 memory.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  REGISTER_REQUESTING_WRITE_ADDRESSES device_characteristics memory device1
+  ==>
+  REGISTER_REQUESTING_WRITE_ADDRESSES device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ITAC internal_operation_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_UNEXPANDED_PENDING_REGISTER_RELATED_MEMORY_REQUESTS_LEMMA THEN
+ITAC write_properties_lemmasTheory.PENDING_REGISTER_RELATED_MEMORY_REQUESTS_UNEXPANDED_PRESERVES_REGISTER_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEVICE_REQUESTING_READ_ADDRESSES_LEMMA:
+!memory device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  DEVICE_REQUESTING_READ_ADDRESSES device_characteristics memory device1
+  ==>
+  DEVICE_REQUESTING_READ_ADDRESSES device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC read_propertiesTheory.DEVICE_REQUESTING_READ_ADDRESSES THEN
+CONJ_TAC THENL
+[
+ ETAC read_propertiesTheory.DMA_REQUESTING_READ_ADDRESSES THEN
+ INTRO_TAC THEN
+ AIRTAC THEN
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_PENDING_ACCESSES_RESTRICTED_LEMMA THEN
+ IRTAC read_properties_lemmasTheory.PENDING_ACCESSES_RESTRICTED_PRESERVES_CHANNEL_R_LEMMA THEN
+ STAC
+ ,
+ ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_REGISTER_REQUESTING_READ_ADDRESSES_LEMMA THEN STAC
+]
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEVICE_REQUESTING_WRITE_ADDRESSES_LEMMA:
+!memory device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  DEVICE_REQUESTING_WRITE_ADDRESSES device_characteristics memory device1
+  ==>
+  DEVICE_REQUESTING_WRITE_ADDRESSES device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ETAC write_propertiesTheory.DEVICE_REQUESTING_WRITE_ADDRESSES THEN
+CONJ_TAC THENL
+[
+ ETAC write_propertiesTheory.DMA_REQUESTING_WRITE_ADDRESSES THEN
+ INTRO_TAC THEN
+ AIRTAC THEN
+ IRTAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_IMPLIES_PENDING_ACCESSES_RESTRICTED_LEMMA THEN
+ IRTAC write_properties_lemmasTheory.PENDING_ACCESSES_RESTRICTED_PRESERVES_CHANNEL_W_LEMMA THEN
+ STAC
+ ,
+ ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_REGISTER_REQUESTING_WRITE_ADDRESSES_LEMMA THEN STAC
+]
+QED
+
+Theorem PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEVICE_REQUESTING_READ_WRITE_ADDRESSES_LEMMA:
+!memory device_characteristics device1 device2.
+  device2 = process_register_related_memory_access device_characteristics.dma_characteristics device1 /\
+  DEVICE_REQUESTING_READ_ADDRESSES device_characteristics memory device1 /\
+  DEVICE_REQUESTING_WRITE_ADDRESSES device_characteristics memory device1
+  ==>
+  DEVICE_REQUESTING_READ_ADDRESSES device_characteristics memory device2 /\
+  DEVICE_REQUESTING_WRITE_ADDRESSES device_characteristics memory device2
+Proof
+INTRO_TAC THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEVICE_REQUESTING_READ_ADDRESSES_LEMMA THEN
+ITAC PROCESS_REGISTER_RELATED_MEMORY_ACCESS_PRESERVES_DEVICE_REQUESTING_WRITE_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+val _ = export_theory();
+

@@ -1,0 +1,129 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open l1Theory;
+open proof_obligationsTheory;
+open access_propertiesTheory;
+
+val _ = new_theory "l1_writing_back_bd_lemmas";
+
+Theorem WRITING_BACK_BD_L1_IMPLIES_PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD_LEMMA:
+!device_characteristics channel_id memory internal_state1 internal_state2 channel1 channel2 environment.
+  PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED device_characteristics /\
+  VALID_CHANNEL_ID device_characteristics channel_id /\
+  (internal_state2, channel2) = writing_back_bd_l1 device_characteristics channel_id memory environment internal_state1 channel1
+  ==>
+  !R. PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD R device_characteristics.dma_characteristics.W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+PTAC writing_back_bd_l1 THENL
+[
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_properties_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_IMPLIES_PENDING_ACCESSES_UNMODIFIED_WRITING_BACK_BD_LEMMA THEN
+ ETAC PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ETAC PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED THEN
+ AITAC THEN
+ ITAC lists_lemmasTheory.EVERY_SUBLIST_LEMMA THEN
+ ETAC PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD THEN
+ ITAC writing_back_bd_properties_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_APPEND_REQUEST_IMPLIES_PENDING_ACCECSSES_CONDITIONALLY_EXPANDED_WRITING_BACK_BD_LEMMA THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_properties_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_IMPLIES_PENDING_ACCESSES_UNMODIFIED_WRITING_BACK_BD_LEMMA THEN
+ ETAC PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ PTAC PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD THEN
+ PTAC PENDING_ACCESSES_UNMODIFIED_WRITING_BACK_BD THEN
+ STAC
+]
+QED
+
+Theorem WRITING_BACK_BD_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA:
+!device_characteristics channel_id memory environment internal_state1 internal_state2 channel1 channel2.
+  (internal_state2, channel2) = writing_back_bd_l1 device_characteristics channel_id memory environment internal_state1 channel1
+  ==>
+  channel1.pending_accesses.requests.fetching_bd = channel2.pending_accesses.requests.fetching_bd /\
+  channel1.pending_accesses.requests.updating_bd = channel2.pending_accesses.requests.updating_bd /\
+  channel1.pending_accesses.requests.transferring_data = channel2.pending_accesses.requests.transferring_data
+Proof
+INTRO_TAC THEN
+PTAC writing_back_bd_l1 THENL
+[
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_APPEND_REQUEST_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_APPEND_REQUEST_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ STAC
+ ,
+ EQ_PAIR_ASM_TAC THEN
+ ITAC writing_back_bd_suboperations_lemmasTheory.WRITING_BACK_BD_REMOVE_RELEASED_BDS_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ STAC
+]
+QED
+
+Theorem WRITING_BACK_BD_PRESERVES_PENDING_ACCESSES_RESTRICTED_OTHERS_LEMMA:
+!device_characteristics channel_id memory environment internal_state1 internal_state2 channel1 channel2.
+  (internal_state2, channel2) = writing_back_bd_l1 device_characteristics channel_id memory environment internal_state1 channel1
+  ==>
+  !R.
+    PENDING_ACCESSES_RESTRICTED_FETCHING_BD R device_characteristics.dma_characteristics.W memory channel1 channel2 /\
+    PENDING_ACCESSES_RESTRICTED_UPDATING_BD R device_characteristics.dma_characteristics.W memory channel1 channel2 /\
+    PENDING_ACCESSES_RESTRICTED_TRANSFERRING_DATA R device_characteristics.dma_characteristics.W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+ITAC WRITING_BACK_BD_PRESERVES_FETCHING_UPDATING_TRANSFERRING_DATA_LEMMA THEN
+ITAC access_properties_lemmasTheory.EQ_REQUESTS_IMPLIES_PENDING_ACCESSES_RESTRICTED_FETCHING_BD_LEMMA THEN
+ITAC access_properties_lemmasTheory.EQ_REQUESTS_IMPLIES_PENDING_ACCESSES_RESTRICTED_UPDATING_BD_LEMMA THEN
+ITAC access_properties_lemmasTheory.EQ_REQUESTS_IMPLIES_PENDING_ACCESSES_RESTRICTED_TRANSFERRING_DATA_LEMMA THEN
+STAC
+QED
+
+Theorem WRITING_BACK_BD_L1_IMPLIES_PENDING_ACCESSES_RESTRICTED_LEMMA:
+!device_characteristics channel_id memory internal_state1 internal_state2 channel1 channel2 environment.
+  PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED device_characteristics /\
+  VALID_CHANNEL_ID device_characteristics channel_id /\
+  (internal_state2, channel2) = writing_back_bd_l1 device_characteristics channel_id memory environment internal_state1 channel1
+  ==>
+  !R. PENDING_ACCESSES_RESTRICTED R device_characteristics.dma_characteristics.W memory channel1 channel2
+Proof
+INTRO_TAC THEN
+GEN_TAC THEN
+ITAC WRITING_BACK_BD_L1_IMPLIES_PENDING_ACCESSES_RESTRICTED_WRITING_BACK_BD_LEMMA THEN
+ITAC WRITING_BACK_BD_PRESERVES_PENDING_ACCESSES_RESTRICTED_OTHERS_LEMMA THEN
+ETAC PENDING_ACCESSES_RESTRICTED THEN
+STAC
+QED
+
+Theorem WRITING_BACK_BD_L1_PRESERVES_CHANNEL_REQUESTING_ACCESSES_LEMMA:
+!device_characteristics R memory internal_state1 internal_state2 channel1 channel2 channel_id environment.
+  PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED device_characteristics /\
+  VALID_CHANNEL_ID device_characteristics channel_id /\
+  (internal_state2, channel2) = writing_back_bd_l1 device_characteristics channel_id memory environment internal_state1 channel1 /\
+  CHANNEL_REQUESTING_READ_ADDRESSES R memory channel1 /\
+  CHANNEL_REQUESTING_WRITE_ADDRESSES device_characteristics.dma_characteristics.W memory channel1
+  ==>
+  CHANNEL_REQUESTING_READ_ADDRESSES R memory channel2 /\
+  CHANNEL_REQUESTING_WRITE_ADDRESSES device_characteristics.dma_characteristics.W memory channel2
+Proof
+INTRO_TAC THEN
+ITAC WRITING_BACK_BD_L1_IMPLIES_PENDING_ACCESSES_RESTRICTED_LEMMA THEN
+ITAC read_properties_lemmasTheory.PENDING_ACCESSES_RESTRICTED_PRESERVES_CHANNEL_R_LEMMA THEN
+ITAC write_properties_lemmasTheory.PENDING_ACCESSES_RESTRICTED_PRESERVES_CHANNEL_W_LEMMA THEN
+STAC
+QED
+
+val _ = export_theory();
+

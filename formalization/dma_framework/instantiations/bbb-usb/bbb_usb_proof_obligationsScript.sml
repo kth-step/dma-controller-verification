@@ -1,0 +1,1572 @@
+open HolKernel Parse boolLib bossLib helper_tactics;
+open proof_obligationsTheory proof_obligations_dma_l4Theory;
+
+val _ = new_theory "bbb_usb_proof_obligations";
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_LEMMA:
+  PROOF_OBLIGATION_SCHEDULER bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_SCHEDULER THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+PTAC bbb_usb_schedulerTheory.bbb_usb_dma_scheduler THEN
+MATCH_MP_TAC bbb_usb_scheduler_lemmasTheory.FIND_SCHEDULABLE_ENDPOINT_IMPLIES_CHANNEL_ID_LEQ_91_LEMMA THEN
+PAXTAC THEN
+LRTAC THEN
+Q.EXISTS_TAC ‘SND (find_schedulable_endpoint environment q internal_state1)’ THEN
+REWRITE_TAC [pairTheory.PAIR]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH_LEMMA:
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, bbb_usb_schedulerTheory.bbb_usb_dma_scheduler] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_scheduler_lemmasTheory.BBB_USB_DMA_SCHEDULER_PRESERVES_BDS_TO_FETCH_LEMMA]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [stateTheory.coperation, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_scheduler_lemmasTheory.BBB_USB_DMA_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES_LEMMA]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [stateTheory.cverification, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_scheduler_lemmasTheory.BBB_USB_DMA_SCHEDULER_PRESERVES_BD_TRANSFER_RAS_WAS_LEMMA THEN
+AIRTAC THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_SCHEDULER_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_SCHEDULER_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_scheduler_lemmasTheory.BBB_USB_DMA_SCHEDULER_PRESERVES_SCRATCHPAD_ADDRESSES_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_registersTheory.bbb_usb_scratchpad_addresses] THEN
+INTRO_TAC THEN
+Cases_on ‘pending_memory_requests’ THEN Cases_on ‘pending_memory_replies’ THEN
+((PTAC bbb_usb_registersTheory.bbb_usb_process_register_related_memory_replies THEN EQ_PAIR_ASM_TAC THEN STAC) ORELSE
+ (PTAC bbb_usb_registersTheory.bbb_usb_process_register_related_memory_replies THEN
+  EQ_PAIR_ASM_TAC THEN
+  IRTAC bbb_usb_register_lemmasTheory.BBB_USB_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVE_LRAM_REGISTERS_LEMMA THEN
+  STAC)
+)
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+GEN_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BBB_USB_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_IMPLIES_QMEM_LRAM_EQ_QHP_EQ_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+IRTAC bbb_usb_scheduler_lemmasTheory.QMEM_LRAM_EQ_QHP_EQ_ENDPOINTS_TX_SOP_LI_EQ_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL_LEMMA:
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [proof_obligationsTheory.PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL, stateTheory.INTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM stateTheory.bd_location_type_distinct]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL_LEMMA:
+  PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [proof_obligationsTheory.PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL, stateTheory.EXTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [] THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.FETCHED_BD_IS_FIRST_RX_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.FETCHED_BD_IS_FIRST_TX_LEMMA THEN
+ STAC
+ ,
+ ETAC boolTheory.DE_MORGAN_THM THEN
+ SPLIT_ASM_DISJS_TAC THENL
+ [
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA THEN SOLVE_F_ASM_TAC
+  ,
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_91_LEMMA THEN SOLVE_F_ASM_TAC  
+ ]
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_NO_BD_ADDRESSES_TO_READ_LEMMA:
+  PROOF_OBLIGATION_NO_BD_ADDRESSES_TO_READ bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_NO_BD_ADDRESSES_TO_READ THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_BDS_TO_FETCH_EMPTY_IMPLIES_RX_FETCH_BD_ADDRESSES_EMPTY_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_BDS_TO_FETCH_EMPTY_IMPLIES_TX_FETCH_BD_ADDRESSES_EMPTY_LEMMA THEN
+ STAC
+ ,
+ ETAC boolTheory.DE_MORGAN_THM THEN
+ SPLIT_ASM_DISJS_TAC THEN
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN ((FIRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA) ORELSE (FIRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_91_LEMMA)) THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT_LEMMA:
+  PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ PTAC bbb_usb_rxTheory.rx_fetch_bd THEN TRY (EQ_PAIR_ASM_TAC THEN STAC) THEN
+ EQ_PAIR_ASM_TAC THEN
+ IRTAC optionTheory.NOT_SOME_NONE THEN
+ SOLVE_F_ASM_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ PTAC bbb_usb_txTheory.tx_fetch_bd THEN TRY (EQ_PAIR_ASM_TAC THEN STAC) THEN
+ EQ_PAIR_ASM_TAC THEN
+ IRTAC optionTheory.NOT_SOME_NONE THEN
+ SOLVE_F_ASM_TAC
+ ,
+ ETAC boolTheory.DE_MORGAN_THM THEN
+ SPLIT_ASM_DISJS_TAC THEN
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN ((FIRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA) ORELSE (FIRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_91_LEMMA)) THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT_LEMMA:
+  PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [proof_obligationsTheory.PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT, stateTheory.INTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM stateTheory.bd_location_type_distinct]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT_LEMMA:
+  PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [bbb_usb_queuesTheory.BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT_LEMMA]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE_LEMMA:
+  PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_queue_rxTheory.rx_bds_to_fetch THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_queue_rxTheory.rx_bds_to_fetch THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ STAC
+ ,
+ ETAC boolTheory.DE_MORGAN_THM THEN
+ SPLIT_ASM_DISJS_TAC THEN TRY (IRTAC bbb_usb_lemmasTheory.NOT_LEQ_31_NOT_GEQ_32_IMPLIES_F_LEMMA THEN SOLVE_F_ASM_TAC) THEN
+ CONTR_ASMS_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_ENDPOINTS_TX_LEMMA THEN
+ ETAC bbb_usb_queue_txTheory.tx_bds_to_fetch THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ FIRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_OTHER_CHANNEL_TX_BDS_TO_FETCH_LEMMA THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_NO_BDS_TO_FETCH_LEMMA:
+  PROOF_OBLIGATION_NO_BDS_TO_FETCH bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_NO_BDS_TO_FETCH THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_BDS_TO_FETCH_EMPTY_IMPLIES_QHP_EQ_ZERO_LEMMA THEN
+ PTAC bbb_usb_rxTheory.rx_fetch_bd THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_BDS_TO_FETCH_EMPTY_IMPLIES_QHP_EQ_ZERO_LEMMA THEN
+ PTAC bbb_usb_txTheory.tx_fetch_bd THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_PRESERVES_OTHER_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_FETCH_BD_PRESERVES_OTHER_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_FETCH_BD_PRESERVES_OTHER_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ FITAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ ETAC bbb_usb_rxTheory.rx_fetch_bd_addresses THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ ETAC bbb_usb_rxTheory.rx_fetch_bd_addresses THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ FITAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ ETAC bbb_usb_txTheory.tx_fetch_bd_addresses THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_OTHER_CHANNELS_QHP_LEMMA THEN
+ ETAC bbb_usb_txTheory.tx_fetch_bd_addresses THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_ADDRESSES_IN_FIRST_BD_RAS_LEMMA:
+  PROOF_OBLIGATION_FETCH_BD_ADDRESSES_IN_FIRST_BD_RAS bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_FETCH_BD_ADDRESSES_IN_FIRST_BD_RAS THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_rx_lemmasTheory.NOT_EMPTY_RX_BDS_TO_FETCH_IMPLIES_QHP_NEQ_ZERO_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_BDS_TO_FETCH_RESULT_LEMMA THEN
+ WEAKEN_TAC is_exists THEN
+ FIRTAC bbb_usb_queue_rxTheory.NOT_NULL_QHP_IMPLIES_RX_FETCH_BD_ADDRESSES_EQ_GET_BD_RAS_QHP_LEMMA THEN
+ RLTAC THEN
+ LRTAC THEN
+ REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_REFL_LEMMA]
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_tx_lemmasTheory.NOT_EMPTY_TX_BDS_TO_FETCH_IMPLIES_QHP_NEQ_ZERO_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_BDS_TO_FETCH_RESULT_LEMMA THEN
+ WEAKEN_TAC is_exists THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_ADDRESSES_RESULT_LEMMA THEN
+ RLTAC THEN
+ LRTAC THEN
+ REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_REFL_LEMMA]
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_REPLIES_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_REPLIES_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_REPLIES_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_REGISTERS_QHP_ENDPOINTS_TX_TAC_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_RX_FETCH_BD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_REGISTERS_QHP_ENDPOINTS_TX_TAC_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_TX_FETCH_BD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_FETCH_BD_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_FETCH_BD_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_register_lemmasTheory.REGISTERS_EQ_IMPLIES_SCRATCHPAD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_FETCH_BD_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_register_lemmasTheory.REGISTERS_EQ_IMPLIES_SCRATCHPAD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_SAME_BD_QUEUE_LOCATIONS_PRESERVE_BD_QUEUE_LEMMA:
+  PROOF_OBLIGATION_SAME_BD_QUEUE_LOCATIONS_PRESERVE_BD_QUEUE bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_SAME_BD_QUEUE_LOCATIONS_PRESERVE_BD_QUEUE THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_lemmasTheory.MEM_MEMORY_EQ_EQ_MEMORY_EQ_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_BDS_TO_FETCH_MEMORY_DEPENDENCE_LEMMA THEN
+ STAC
+ ,
+ IF_SPLIT_TAC THEN1 (
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_lemmasTheory.MEM_MEMORY_EQ_EQ_MEMORY_EQ_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_BDS_TO_FETCH_MEMORY_DEPENDENCE_LEMMA THEN
+ STAC) THEN
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+  
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_INTERNAL_BDS_INDEPENDENT_OF_MEMORY_LEMMA:
+  PROOF_OBLIGATION_INTERNAL_BDS_INDEPENDENT_OF_MEMORY bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_INTERNAL_BDS_INDEPENDENT_OF_MEMORY THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.INTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM stateTheory.bd_location_type_distinct]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THENL
+[
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.rx_verification THEN
+  RECORD_TAC THEN
+  ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN STAC
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_verification THEN
+  RECORD_TAC THEN
+  ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN STAC
+  ,
+  IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ]
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_WRITES_DECLARED_LEMMA:
+  PROOF_OBLIGATION_UPDATE_WRITES_DECLARED bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATE_WRITES_DECLARED THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.cverification, stateTheory.coperation] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_rxTheory.rx_update_bd THEN
+ EQ_PAIR_ASM_TAC THEN
+ LRTAC THEN
+ ETAC listTheory.MAP THEN
+ REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_EMPTY_LEMMA]
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_operation THEN
+  RECORD_TAC THEN
+  ETAC bbb_usb_txTheory.tx_update_bd THEN
+  EQ_PAIR_ASM_TAC THEN
+  LRTAC THEN
+  ETAC listTheory.MAP THEN
+  REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_EMPTY_LEMMA]
+  ,
+  ETAC boolTheory.DE_MORGAN_THM THEN
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN
+  SPLIT_ASM_DISJS_TAC THENL
+  [
+   IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA THEN SOLVE_F_ASM_TAC
+   ,
+   IRTAC wordsTheory.WORD_LOWER_EQ_LOWER_TRANS THEN IRTAC wordsTheory.WORD_LOWER_REFL THEN SOLVE_F_ASM_TAC
+  ]
+ ]
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL_LEMMA:
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL THEN
+REWRITE_TAC [stateTheory.INTERNAL_BDS, bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM stateTheory.bd_location_type_distinct]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST_LEMMA:
+  PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID, stateTheory.EXTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.cverification, stateTheory.coperation] THEN
+RECORD_TAC THEN
+REWRITE_TAC [] THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_rxTheory.rx_update_bd THEN
+ EQ_PAIR_ASM_TAC THEN
+ LRTAC THEN
+ STAC
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_operation THEN
+  RECORD_TAC THEN
+  ETAC bbb_usb_txTheory.tx_update_bd THEN
+  EQ_PAIR_ASM_TAC THEN
+  LRTAC THEN
+  STAC
+  ,
+  ETAC boolTheory.DE_MORGAN_THM THEN
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN
+  SPLIT_ASM_DISJS_TAC THENL
+  [
+   IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA THEN SOLVE_F_ASM_TAC
+   ,
+   IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_91_LEMMA THEN SOLVE_F_ASM_TAC
+  ]
+ ]
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_BD_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_UPDATE_BD_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATE_BD_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.coperation] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+FIRTAC bbb_usb_lemmasTheory.UPDATE_BD_PRESERVES_INTERNAL_STATE_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.coperation, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+FIRTAC bbb_usb_lemmasTheory.UPDATE_BD_PRESERVES_INTERNAL_STATE_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_BD_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_UPDATE_BD_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+PTAC proof_obligationsTheory.PROOF_OBLIGATION_UPDATE_BD_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.coperation] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+FIRTAC bbb_usb_lemmasTheory.UPDATE_BD_PRESERVES_INTERNAL_STATE_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS_LEMMA:
+  PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, stateTheory.VALID_CHANNEL_ID] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_dma_characteristics, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_rxTheory.rx_update_bd_addresses THEN
+ RLTAC THEN
+ REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_EMPTY_LEMMA]
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_verification THEN
+  RECORD_TAC THEN
+  ETAC bbb_usb_txTheory.tx_update_bd_addresses THEN
+  RLTAC THEN
+  REWRITE_TAC [lists_lemmasTheory.LIST1_IN_LIST2_EMPTY_LEMMA]
+  ,
+  ETAC boolTheory.DE_MORGAN_THM THEN
+  ETAC wordsTheory.WORD_NOT_LOWER_EQUAL THEN
+  SPLIT_ASM_DISJS_TAC THENL
+  [
+   IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_31_LEMMA THEN SOLVE_F_ASM_TAC
+   ,
+   IRTAC bbb_usb_lemmasTheory.NOT_BETWEEN_91_LEMMA THEN SOLVE_F_ASM_TAC
+  ]
+ ]
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN STAC
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_verification THEN
+  RECORD_TAC THEN
+  ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN STAC
+  ,
+  IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ]
+]
+QED
+ 
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+MATCH_MP_TAC bbb_usb_scheduler_lemmasTheory.QMEM_LRAM_EQ_QHP_EQ_ENDPOINTS_TX_SOP_LI_EQ_IMPLIES_BDS_TO_FETCH_EQ_LEMMA THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THEN TRY IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_QMEM_LRAM_EQ_LEMMA THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_QMEM_LRAM_EQ_LEMMA THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THEN IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+ MATCH_MP_TAC bbb_usb_rx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_RX_FETCH_BD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ IF_SPLIT_TAC THEN TRY (FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC) THEN
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ ITAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+ MATCH_MP_TAC bbb_usb_rx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_RX_FETCH_BD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ IF_SPLIT_TAC THENL
+ [
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.rx_operation THEN
+  RECORD_TAC THEN
+  ETAC bbb_usb_instantiationTheory.tx_operation THEN
+  RECORD_TAC THEN
+  ITAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+  IRTAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+  MATCH_MP_TAC bbb_usb_tx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_TX_FETCH_BD_ADDRESSES_LEMMA THEN
+  STAC
+  ,
+  IF_SPLIT_TAC THEN TRY (FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC) THEN
+  ETAC optionTheory.THE_DEF THEN
+  ETAC bbb_usb_instantiationTheory.tx_operation THEN
+  RECORD_TAC THEN
+  ITAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_QHP_LEMMA THEN
+  IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+  MATCH_MP_TAC bbb_usb_tx_lemmasTheory.EQ_REGISTERS_QHP_PRESERVES_TX_FETCH_BD_ADDRESSES_LEMMA THEN
+  STAC
+ ]
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+IF_SPLIT_TAC THEN TRY IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_register_lemmasTheory.REGISTERS_EQ_IMPLIES_SCRATCHPAD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_REGISTERS_LEMMA THEN
+ IRTAC bbb_usb_register_lemmasTheory.REGISTERS_EQ_IMPLIES_SCRATCHPAD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_READ_REQUESTS_CONSISTENT_WITH_BD_LEMMA:
+  PROOF_OBLIGATION_READ_REQUESTS_CONSISTENT_WITH_BD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_READ_REQUESTS_CONSISTENT_WITH_BD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_operation THEN
+ETAC bbb_usb_instantiationTheory.bbb_usb_verification THEN
+IF_SPLIT_TAC THEN TRY IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_rxTheory.rx_bd_transfer_ras_was THEN
+ EXISTS_EQ_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_WRITE_REQUEST_LEMMA THEN
+ SPLIT_ASM_DISJS_TAC THENL
+ [
+  LRTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+  ,
+  AXTAC THEN
+  LRTAC THEN
+  ETAC listTheory.MEM THEN
+  REMOVE_F_DISJUNCTS_TAC THEN
+  IRTAC stateTheory.interconnect_request_type_distinct THEN
+  SOLVE_F_ASM_TAC
+ ]
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_txTheory.tx_bd_transfer_ras_was THEN
+ LRTAC THEN
+ EXISTS_EQ_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_READ_ADDRESSES_IN_BUFFER_READ_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_REQUESTS_CONSISTENT_WITH_BD_LEMMA:
+  PROOF_OBLIGATION_WRITE_REQUESTS_CONSISTENT_WITH_BD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITE_REQUESTS_CONSISTENT_WITH_BD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_operation, bbb_usb_instantiationTheory.bbb_usb_verification] THEN
+INTRO_TAC THEN
+IF_SPLIT_TAC THEN TRY IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_rxTheory.rx_bd_transfer_ras_was THEN
+ EXISTS_EQ_TAC THEN
+ MATCH_MP_TAC bbb_usb_lemmasTheory.GENERATE_SUBLIST_CONSECUTIVE_ADDRESSES_LEMMA THEN
+ PTAC bbb_usb_rxTheory.rx_process_replies_generate_requests THEN EQ_PAIR_ASM_TAC THENL
+ [
+  NLRTAC 3 THEN
+  ETAC listTheory.MEM THEN REMOVE_F_DISJUNCTS_TAC THEN RLTAC THEN ETAC stateTheory.interconnect_request_type_11 THEN NLRTAC 2 THEN
+  WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN
+  WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN
+  WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN WEAKEN_TAC (fn _ => true) THEN
+  PAT_X_ASSUM “channel_id <=+ 91w” (fn _ => ALL_TAC) THEN PAT_X_ASSUM “channel_id <=+ 31w” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “endpoint_id = internal_state1.current_rx_endpoint_id” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “endpoint = internal_state1.endpoints_rx endpoint_id” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “registers = internal_state1.registers” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “ras = []” (fn _ => ALL_TAC) THEN PAT_X_ASSUM “bd = (q, r)” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “x = y + if c then a else b” (fn _ => ALL_TAC) THEN
+  PAT_X_ASSUM “start_buffer_address = buffer_pointer q” (fn thm => ASSUME_TAC thm) THEN
+  PAT_X_ASSUM “buffer_size = buffer_length q” (fn thm => ASSUME_TAC thm) THEN
+  NRLTAC 2 THEN
+  ITAC bbb_usb_lemmasTheory.NUMBER_OF_BYTES_TO_WRITE_IMPLIES_OFFSET_LT_BUFFER_SIZE_AND_OFFSET_PLUS_REQUEST_SIZE_LEQ_BUFFER_SIZE_LEMMA THEN
+  PAXTAC THEN
+  REWRITE_TAC [GSYM arithmeticTheory.GREATER_DEF] THEN
+  CONJS_TAC THEN TRY STAC THEN
+  IRTAC bbb_usb_lemmasTheory.AT_LEAST_ONE_ELEMENT_IMPLIES_GENERATE_CONSECUTIVE_ADDRESSES_EQ_GENLIST_LEMMA THEN LRTAC THEN
+  PAT_X_ASSUM “address_bytes' = ZIP (write_addresses,bytes_to_write)” (fn thm => ASSUME_TAC thm) THEN LRTAC THEN
+  QEQ_RW_RHS_ASM_KEEP_TAC THEN
+  MATCH_MP_TAC ((GEN_ALL o (DISCH ((#1 o dest_imp o concl) listTheory.MAP_ZIP)) o CONJUNCT1 o UNDISCH) listTheory.MAP_ZIP) THEN
+  LRTAC THEN
+  ETAC listTheory.LENGTH_GENLIST THEN
+  IRTAC bbb_usb_lemmasTheory.NUMBER_OF_BYTES_TO_WRITE_LEQ_USB_PACKET_LENGTH_LEMMA THEN
+  IRTAC listTheory.LENGTH_TAKE THEN
+  PAT_X_ASSUM “bytes_to_write = TAKE number_of_bytes_to_write endpoint.usb_packet” (fn thm => ASSUME_TAC thm) THEN
+  RLTAC THEN
+  STAC
+  ,
+  NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ]
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_txTheory.tx_bd_transfer_ras_was THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_PROCESS_REPLIES_GENERATE_REQUESTS_IMPLIES_READ_REQUEST_LEMMA THEN
+ SPLIT_ASM_DISJS_TAC THENL
+ [
+  LRTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+  ,
+  AXTAC THEN
+  LRTAC THEN
+  ETAC listTheory.MEM THEN
+  REMOVE_F_DISJUNCTS_TAC THEN
+  IRTAC stateTheory.interconnect_request_type_distinct THEN
+  SOLVE_F_ASM_TAC
+ ]
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS_LEMMA:
+  PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification] THEN
+INTRO_TAC THEN
+IF_SPLIT_TAC THEN TRY IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_rxTheory.rx_write_back_bd_addresses THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_WRITE_ADDRESS_IS_BD_WAS_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN RECORD_TAC THEN
+ PTAC bbb_usb_txTheory.tx_write_back_bd_addresses THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_WRITE_ADDRESS_IS_BD_WAS_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL_LEMMA:
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [proof_obligationsTheory.PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL, stateTheory.INTERNAL_BDS] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [GSYM stateTheory.bd_location_type_distinct]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST_LEMMA:
+  PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification, bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+PAT_X_ASSUM “EXTERNAL_BDS x” (fn _ => ALL_TAC) THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.QMEM_LRAM_EQ_QHP_EQ_IMPLIES_RX_BDS_TO_FETCH_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.QMEM_LRAM_EQ_QHP_EQ_IMPLIES_RX_BDS_TO_FETCH_EQ_LEMMA THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_IMPLIES_TX_BDS_TO_FETCH_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_IMPLIES_TX_BDS_TO_FETCH_EQ_LEMMA THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED_LEMMA:
+  PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification, bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_ADDRESSES_ARE_DECLARED_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_ADDRESSES_ARE_DECLARED_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification, bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA] THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA] THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA] THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA] THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.QHP_QMEM_LRAM_EQ_IMPLIES_RX_FETCH_BD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_rx_lemmasTheory.QHP_QMEM_LRAM_EQ_IMPLIES_RX_FETCH_BD_ADDRESSES_EQ_LEMMA THEN
+ STAC 
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.QHP_QMEM_LRAM_EQ_IMPLIES_TX_FETCH_BD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_tx_lemmasTheory.QHP_QMEM_LRAM_EQ_IMPLIES_TX_FETCH_BD_ADDRESSES_EQ_LEMMA THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [stateTheory.coperation, stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_rx_lemmasTheory.RX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_lemmasTheory.QMEM_LRAM_EQ_PRESERVES_BBB_USB_SCRATCHPAD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_tx_lemmasTheory.TX_WRITE_BACK_BD_PRESERVES_QMEM_LRAM_EQ_QHP_ENDPOINTS_TX_SOP_LI_EQ_LEMMA THEN
+ IRTAC bbb_usb_lemmasTheory.QMEM_LRAM_EQ_PRESERVES_BBB_USB_SCRATCHPAD_ADDRESSES_LEMMA THEN
+ STAC
+ ,
+ FIRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_READABLE_WRITABLE_LEMMA:
+  PROOF_OBLIGATION_READABLE_WRITABLE bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_READABLE_WRITABLE THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification] THEN
+INTRO_TAC THEN
+GEN_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ LRTAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA]
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ LRTAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_INTERNAL_STATE_INDEPENDENT_LEMMA]
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BDS_TO_FETCH_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BDS_TO_FETCH bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BDS_TO_FETCH THEN
+REWRITE_TAC [stateTheory.VALID_CHANNEL_ID, stateTheory.cverification] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification] THEN
+INTRO_TAC THEN
+GEN_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_verification THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_FETCH_BD_ADDRESSES_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_PRESERVES_FETCH_BD_ADDRESSES bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_PRESERVES_FETCH_BD_ADDRESSES THEN
+REWRITE_TAC [stateTheory.VALID_CHANNEL_ID, stateTheory.coperation] THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_operation] THEN
+INTRO_TAC THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.rx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ ETAC bbb_usb_instantiationTheory.tx_operation THEN
+ RECORD_TAC THEN
+ IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_IMPLIES_NO_MEMORY_REQUESTS_OR_READ_REQUEST_TO_LI_ADDRESSES_LEMMA THEN
+SPLIT_ASM_DISJS_TAC THEN TRY (LRTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC) THEN
+AXTAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BD_ADDRESS_TO_LI_ADDRESSES_ARE_SCRATCHPAD_ADDRESSES_LEMMA THEN
+LRTAC THEN
+ETAC listTheory.MEM THEN
+REMOVE_F_DISJUNCTS_TAC THEN
+ETAC stateTheory.interconnect_request_type_11 THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+PTAC bbb_usb_registersTheory.bbb_usb_read_register THEN EQ_PAIR_ASM_TAC THEN TRY (ALL_LRTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC) THEN
+NLRTAC 3 THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ PTAC bbb_usb_registersTheory.read_register_txgcr THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_rxgcr THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_registers_lram THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_qmemctrl THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_qmemrbase THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_scheduler THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_rxhpcra THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_rxhpcrb THEN EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.read_register_d THEN EQ_PAIR_ASM_TAC THEN NRLTAC 2 THEN LRTAC THEN ETAC listTheory.MEM THEN
+ REMOVE_F_DISJUNCTS_TAC THEN HYP_CONTR_NEQ_LEMMA_TAC stateTheory.interconnect_request_type_distinct
+ ,
+ EQ_PAIR_ASM_TAC THEN RLTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_REGISTER_READ_PRESERVES_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_READ_PRESERVES_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BBB_USB_READ_REGISTER_PRESERVES_INTERNAL_STATE_LEMMA THEN
+STAC
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_PRESERVES_BD_INTERPRETATION_LEMMA:
+  PROOF_OBLIGATION_REGISTER_WRITE_PRESERVES_BD_INTERPRETATION bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_WRITE_PRESERVES_BD_INTERPRETATION THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+REWRITE_TAC [stateTheory.cverification, stateTheory.VALID_CHANNEL_ID] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+INTRO_TAC THEN
+GEN_TAC THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_verification] THEN
+REPEAT IF_SPLIT_TAC THENL
+[
+ ETAC optionTheory.THE_DEF THEN
+ REWRITE_TAC [bbb_usb_instantiationTheory.rx_verification] THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_rx_lemmasTheory.RX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN
+ STAC
+ ,
+ ETAC optionTheory.THE_DEF THEN
+ REWRITE_TAC [bbb_usb_instantiationTheory.tx_verification] THEN
+ RECORD_TAC THEN
+ ONCE_REWRITE_TAC [bbb_usb_tx_lemmasTheory.TX_BD_TRANSFER_RAS_WAS_DEPENDS_ON_BD_LEMMA] THEN
+ STAC
+ ,
+ IRTAC bbb_usb_lemmasTheory.LEQ_91_NLEQ_31_NOT_GEQ_32_AND_LEQ_91_LEMMA THEN SOLVE_F_ASM_TAC 
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+PTAC bbb_usb_registersTheory.bbb_usb_write_register THENL
+[
+ EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_txgcr THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_rxgcr THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_registers_lram THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_qmemctrl THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_qmemrbase THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_scheduler THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_rxhpcra THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_rxhpcrb THEN EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+ ,
+ PTAC bbb_usb_registersTheory.write_register_d THEN EQ_PAIR_ASM_TAC THEN TRY (NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC) THEN
+ NLRTAC 3 THEN ETAC listTheory.MEM THEN REMOVE_F_DISJUNCTS_TAC THEN HYP_CONTR_NEQ_LEMMA_TAC stateTheory.interconnect_request_type_distinct
+ ,
+ EQ_PAIR_ASM_TAC THEN NLRTAC 2 THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC
+]
+QED
+
+Theorem BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA:
+  PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD bbb_usb_device_characteristics
+Proof
+ETAC proof_obligationsTheory.PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD THEN
+REWRITE_TAC [bbb_usb_instantiationTheory.bbb_usb_device_characteristics, bbb_usb_instantiationTheory.bbb_usb_dma_characteristics] THEN
+RECORD_TAC THEN
+INTRO_TAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BBB_USB_WRITE_REGISTER_IMPLIES_NO_MEMORY_REQUESTS_OR_WRITE_REQUEST_TO_LI_ADDRESSES_LEMMA THEN
+SPLIT_ASM_DISJS_TAC THEN1 (LRTAC THEN ETAC listTheory.MEM THEN SOLVE_F_ASM_TAC) THEN
+AXTAC THEN
+IRTAC bbb_usb_register_lemmasTheory.BD_ADDRESS_TO_LI_ADDRESSES_ARE_SCRATCHPAD_ADDRESSES_LEMMA THEN
+RLTAC THEN
+LRTAC THEN
+ETAC listTheory.MEM THEN
+REMOVE_F_DISJUNCTS_TAC THEN
+ETAC stateTheory.interconnect_request_type_11 THEN
+STAC
+QED
+
+
+
+
+
+
+Theorem BBB_USB_PROOF_OBLIGATIONS_DMA_L4:
+  PROOF_OBLIGATIONS_DMA_L4 bbb_usb_device_characteristics
+Proof
+REWRITE_TAC [PROOF_OBLIGATIONS_DMA_L4,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_BDS_TO_FETCH_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SCHEDULER_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLIES_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_MEMORY_REPLY_PRESERVES_BDS_TO_FETCH_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_INTERNAL_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHED_BD_IS_FIRST_EXTERNAL_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_NO_BD_ADDRESSES_TO_READ_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_NOT_FETCHING_BD_NO_BD_QUEUE_EFFECT_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_INTERNAL_BD_QUEUE_EFFECT_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_EXTERNAL_BD_QUEUE_EFFECT_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_BDS_TO_FETCH_INDEPENDENT_OF_FETCHING_BD_FROM_OTHER_QUEUE_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_NO_BDS_TO_FETCH_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_PRESERVES_OTHER_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_ADDRESSES_IN_FIRST_BD_RAS_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REGISTER_RELATED_REPLIES_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCH_BD_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_SAME_BD_QUEUE_LOCATIONS_PRESERVE_BD_QUEUE_LEMMA,  
+BBB_USB_DEVICE_PROOF_OBLIGATION_INTERNAL_BDS_INDEPENDENT_OF_MEMORY_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_FETCHING_BD_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_WRITES_DECLARED_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_BD_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATING_BD_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_UPDATE_BD_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_DECLARED_UPDATE_WRITES_BD_WAS_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVE_BDS_TO_FETCH_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_PROCESS_REPLIES_GENERATE_REQUESTS_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_READ_REQUESTS_CONSISTENT_WITH_BD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_REQUESTS_CONSISTENT_WITH_BD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_DECLARED_WRITE_BACK_WRITES_BD_WAS_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_BD_QUEUE_INTERNAL_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITING_BACK_DISJOINT_BD_PRESERVES_EXTERNAL_BD_QUEUES_REQUEST_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_WRITES_DECLARED_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_WRITE_BACK_BD_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_READABLE_WRITABLE_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_BDS_TO_FETCH_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_FETCH_BD_ADDRESSES_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_READ_PRESERVES_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_PRESERVES_BD_INTERPRETATION_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_READ_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA,
+BBB_USB_DEVICE_PROOF_OBLIGATION_REGISTER_WRITE_MEMORY_WRITE_REQUESTS_ADDRESS_SCRATCHPAD_LEMMA]
+QED
+
+val _ = export_theory();
+
